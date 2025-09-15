@@ -18,17 +18,15 @@ public class Motivo {
     @Column(nullable = false)
     private Boolean activo = true;
 
-    // Constructor por defecto
     public Motivo() {}
 
-    // Constructor con parámetros
+
     public Motivo(String nombre, String descripcion) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.activo = true;
     }
 
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

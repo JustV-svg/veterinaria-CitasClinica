@@ -1,12 +1,14 @@
 package com.veterinaria.api.Controladores;
 
-import com.veterinaria.api.Entidades.Motivo;
+import com.veterinaria.api.DTOs.MotivoDTO;
 import com.veterinaria.api.LogicaDeNegocio.MotivoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/motivos")
@@ -15,75 +17,66 @@ public class MotivoControlador {
     @Autowired
     private MotivoServicio motivoServicio;
 
-    // HU08 - Consultar motivos disponibles
     @GetMapping
     public ResponseEntity<?> listarActivos() {
-        List<Motivo> motivos = motivoServicio.listarActivos();
-        if (motivos.isEmpty()) {
-            return ResponseEntity.ok("No hay motivos disponibles");
+        try {
+            List<MotivoDTO> motivos = motivoServicio.listarActivos();
+            return ResponseEntity.ok(motivos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
-        return ResponseEntity.ok(motivos);
     }
 
-    // HU06 - Registrar motivo de cita
+
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody Motivo motivo) {
+    public ResponseEntity<?> crear(@RequestBody MotivoDTO motivoDTO) {
         try {
-            Motivo nuevo = motivoServicio.crear(motivo);
-            return ResponseEntity.ok(nuevo);
+            MotivoDTO motivoCreado = motivoServicio.crear(motivoDTO);
+            return ResponseEntity.ok(motivoCreado);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body("No se puede crear: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
-    // HU07 - Editar motivo
     @PutMapping("/{id}")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody Motivo motivo) {
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody MotivoDTO motivoDTO) {
         try {
-            Motivo actualizado = motivoServicio.editar(id, motivo)
-                    .orElseThrow(() -> new RuntimeException("El motivo con ID " + id + " no existe"));
-            return ResponseEntity.ok(actualizado);
+            Optional<MotivoDTO> resultado = motivoServicio.editar(id, motivoDTO);
+            if (resultado.isPresent()) {
+                return ResponseEntity.ok(resultado.get());
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("message", "Motivo no encontrado"));
+            }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body("Error al editar: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
-    // HU07 - Desactivar motivo
     @PutMapping("/{id}/desactivar")
     public ResponseEntity<?> desactivar(@PathVariable Long id) {
         try {
-            Motivo desactivado = motivoServicio.desactivar(id)
-                    .orElseThrow(() -> new RuntimeException("El motivo con ID " + id + " no existe"));
-            return ResponseEntity.ok("Motivo desactivado correctamente");
+            Optional<MotivoDTO> resultado = motivoServicio.desactivar(id);
+            if (resultado.isPresent()) {
+                return ResponseEntity.ok(resultado.get());
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("message", "Motivo no encontrado"));
+            }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
-    // Activar motivo
     @PutMapping("/{id}/activar")
     public ResponseEntity<?> activar(@PathVariable Long id) {
         try {
-            Motivo activado = motivoServicio.activar(id)
-                    .orElseThrow(() -> new RuntimeException("El motivo con ID " + id + " no existe"));
-            return ResponseEntity.ok("Motivo activado correctamente");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
-    }
-
-    // Eliminar motivo (DELETE)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        try {
-            boolean eliminado = motivoServicio.eliminar(id);
-            if (eliminado) {
-                return ResponseEntity.ok("Motivo eliminado correctamente");
+            Optional<MotivoDTO> resultado = motivoServicio.activar(id);
+            if (resultado.isPresent()) {
+                return ResponseEntity.ok(resultado.get());
             } else {
-                return ResponseEntity.badRequest().body("No se encontró el motivo con ID " + id);
+                return ResponseEntity.badRequest().body(Map.of("message", "Motivo no encontrado"));
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body("Error al eliminar: " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.veterinaria.api.LogicaDeNegocio;
 
-
+import com.veterinaria.api.DTOs.MotivoDTO;
 import com.veterinaria.api.Entidades.Motivo;
 import com.veterinaria.api.Repositorios.MotivoRepositorio;
 import com.veterinaria.api.Repositorios.CitaRepositorio;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MotivoServicio {
@@ -20,113 +21,89 @@ public class MotivoServicio {
     private CitaRepositorio citaRepositorio;
 
     // HU08 - Consultar motivos disponibles
-    public List<Motivo> listarActivos() {
-        return motivoRepositorio.findByActivoTrue();
+    public List<MotivoDTO> listarActivos() {
+        return motivoRepositorio.findByActivoTrue()
+                .stream()
+                .map(MotivoDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    // HU06 - Registrar motivo de cita
-    public Motivo crear(Motivo motivo) {
-        // Validar que el nombre sea único
-        Optional<Motivo> motivoExistente = motivoRepositorio.findByNombre(motivo.getNombre());
+    public MotivoDTO crear(MotivoDTO motivoDTO) {
+
+        Optional<Motivo> motivoExistente = motivoRepositorio.findByNombre(motivoDTO.getNombre());
         if (motivoExistente.isPresent()) {
             throw new RuntimeException("Ya existe un motivo con ese nombre");
         }
 
-        // Validar campo obligatorio
-        if (motivo.getNombre() == null || motivo.getNombre().trim().isEmpty()) {
+        if (motivoDTO.getNombre() == null || motivoDTO.getNombre().trim().isEmpty()) {
             throw new RuntimeException("El nombre del motivo es obligatorio");
         }
 
-        // Asegurar que esté activo por defecto
+        Motivo motivo = motivoDTO.toEntity();
         motivo.setActivo(true);
 
-        return motivoRepositorio.save(motivo);
+        Motivo motivoGuardado = motivoRepositorio.save(motivo);
+        return MotivoDTO.fromEntity(motivoGuardado);
     }
 
-    // HU07 - Editar motivo
-    public Optional<Motivo> editar(Long id, Motivo motivoActualizado) {
+    public Optional<MotivoDTO> editar(Long id, MotivoDTO motivoDTO) {
         Optional<Motivo> motivoExistente = motivoRepositorio.findById(id);
 
         if (motivoExistente.isPresent()) {
             Motivo motivo = motivoExistente.get();
 
-            // Validar nombre único (excluyendo el motivo actual)
-            if (motivoActualizado.getNombre() != null &&
-                    motivoRepositorio.existsByNombreAndIdNot(motivoActualizado.getNombre(), id)) {
+
+            if (motivoDTO.getNombre() != null &&
+                    motivoRepositorio.existsByNombreAndIdNot(motivoDTO.getNombre(), id)) {
                 throw new RuntimeException("Ya existe otro motivo con ese nombre");
             }
 
-            // Actualizar campos
-            if (motivoActualizado.getNombre() != null) {
-                motivo.setNombre(motivoActualizado.getNombre());
-            }
-            if (motivoActualizado.getDescripcion() != null) {
-                motivo.setDescripcion(motivoActualizado.getDescripcion());
-            }
+            motivoDTO.updateEntity(motivo);
 
-            return Optional.of(motivoRepositorio.save(motivo));
+            Motivo motivoActualizado = motivoRepositorio.save(motivo);
+            return Optional.of(MotivoDTO.fromEntity(motivoActualizado));
         }
 
         return Optional.empty();
     }
 
-    // HU07 - Desactivar motivo
-    public Optional<Motivo> desactivar(Long id) {
+    public Optional<MotivoDTO> desactivar(Long id) {
         Optional<Motivo> motivoExistente = motivoRepositorio.findById(id);
 
         if (motivoExistente.isPresent()) {
             Motivo motivo = motivoExistente.get();
 
-            // Verificar si está siendo usado en citas
             boolean tieneUso = !citaRepositorio.findAll().stream()
                     .filter(cita -> cita.getMotivoId().equals(id))
                     .findFirst()
                     .isEmpty();
 
             if (tieneUso) {
-                // Solo desactivar, no eliminar
+
                 motivo.setActivo(false);
-                return Optional.of(motivoRepositorio.save(motivo));
+                Motivo motivoDesactivado = motivoRepositorio.save(motivo);
+                return Optional.of(MotivoDTO.fromEntity(motivoDesactivado));
             } else {
-                // Podría eliminarse, pero por consistencia solo desactivamos
+
                 motivo.setActivo(false);
-                return Optional.of(motivoRepositorio.save(motivo));
+                Motivo motivoDesactivado = motivoRepositorio.save(motivo);
+                return Optional.of(MotivoDTO.fromEntity(motivoDesactivado));
             }
         }
 
         return Optional.empty();
     }
 
-    // Activar motivo
-    public Optional<Motivo> activar(Long id) {
+    public Optional<MotivoDTO> activar(Long id) {
         Optional<Motivo> motivoExistente = motivoRepositorio.findById(id);
 
         if (motivoExistente.isPresent()) {
             Motivo motivo = motivoExistente.get();
             motivo.setActivo(true);
-            return Optional.of(motivoRepositorio.save(motivo));
+            Motivo motivoActivado = motivoRepositorio.save(motivo);
+            return Optional.of(MotivoDTO.fromEntity(motivoActivado));
         }
 
         return Optional.empty();
     }
-    // Eliminar motivo (definitivo)
-    public boolean eliminar(Long id) {
-        Optional<Motivo> motivoExistente = motivoRepositorio.findById(id);
-
-        if (motivoExistente.isPresent()) {
-            // Verificar si está siendo usado en citas
-            boolean tieneUso = citaRepositorio.findAll().stream()
-                    .anyMatch(cita -> cita.getMotivoId().equals(id));
-
-            if (tieneUso) {
-                throw new RuntimeException("No se puede eliminar, el motivo está asociado a citas");
-            }
-
-            motivoRepositorio.deleteById(id);
-            return true;
-        }
-
-        return false;
-    }
 }
-
