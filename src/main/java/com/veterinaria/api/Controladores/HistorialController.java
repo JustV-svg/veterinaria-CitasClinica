@@ -1,10 +1,12 @@
 package com.veterinaria.api.Controladores;
 
+import com.veterinaria.api.DTOs.HistorialDTO;
 import com.veterinaria.api.Entidades.Historial;
 import com.veterinaria.api.LogicaDeNegocio.HistorialService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/historiales")
@@ -15,29 +17,25 @@ public class HistorialController {
         this.historialService = historialService;
     }
 
-    // HU13: Crear historial
     @PostMapping
-    public Historial crearHistorial(@RequestBody Historial historial) {
-        return historialService.crearHistorial(historial);
+    public CompletableFuture<HistorialDTO> crearHistorial(@RequestBody HistorialDTO dto) {
+        return historialService.crearHistorial(dto);
     }
 
-    // HU14: Actualizar historial
     @PutMapping("/{id}")
-    public Historial actualizarHistorial(@PathVariable Long id,
-                                         @RequestBody Historial historial) {
-        return historialService.actualizarHistorial(id, historial);
+    public CompletableFuture<HistorialDTO> actualizarHistorial(@PathVariable Long id,
+                                                               @RequestBody HistorialDTO dto) {
+        return historialService.actualizarHistorial(id, dto);
     }
 
-    // HU15: Consultar historiales por mascota
     @GetMapping("/mascota/{mascotaId}")
-    public List<Historial> obtenerPorMascota(@PathVariable Long mascotaId) {
+    public CompletableFuture<List<HistorialDTO>> obtenerPorMascota(@PathVariable Long mascotaId) {
         return historialService.obtenerPorMascota(mascotaId);
     }
 
-    // HU16: Anular historial
     @PutMapping("/{id}/anular")
-    public Historial anularHistorial(@PathVariable Long id,
-                                     @RequestParam String corregidoPor) {
+    public CompletableFuture<HistorialDTO> anularHistorial(@PathVariable Long id,
+                                                           @RequestParam String corregidoPor) {
         return historialService.anularHistorial(id, corregidoPor);
     }
 }
