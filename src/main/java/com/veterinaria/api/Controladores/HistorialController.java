@@ -1,19 +1,18 @@
 package com.veterinaria.api.Controladores;
 
 import com.veterinaria.api.DTOs.HistorialDTO;
-import com.veterinaria.api.Entidades.Historial;
-import com.veterinaria.api.LogicaDeNegocio.HistorialService;
+import com.veterinaria.api.LogicaDeNegocio.HistorialServicio;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/api/historiales")
+@RequestMapping("/historiales")
 public class HistorialController {
-    private final HistorialService historialService;
+    private final HistorialServicio historialService;
 
-    public HistorialController(HistorialService historialService) {
+    public HistorialController(HistorialServicio historialService) {
         this.historialService = historialService;
     }
 
@@ -28,9 +27,9 @@ public class HistorialController {
         return historialService.actualizarHistorial(id, dto);
     }
 
-    @GetMapping("/mascota/{mascotaId}")
-    public CompletableFuture<List<HistorialDTO>> obtenerPorMascota(@PathVariable Long mascotaId) {
-        return historialService.obtenerPorMascota(mascotaId);
+    @GetMapping("/cita/{citaId}")
+    public CompletableFuture<List<HistorialDTO>> obtenerPorCita(@PathVariable Long citaId) {
+        return historialService.obtenerPorCita(citaId);
     }
 
     @PutMapping("/{id}/anular")

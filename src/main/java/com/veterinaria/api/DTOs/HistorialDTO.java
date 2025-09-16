@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class HistorialDTO {
     private Long id;
     private Long citaId;
+    private Long veterinarioId;
     private String diagnostico;
     private String tratamiento;
     private String observaciones;
@@ -18,6 +19,14 @@ public class HistorialDTO {
 
     public Long getCitaId() { return citaId; }
     public void setCitaId(Long citaId) { this.citaId = citaId; }
+
+    public Long getVeterinarioId() {
+        return veterinarioId;
+    }
+
+    public void setVeterinarioId(Long veterinarioId) {
+        this.veterinarioId = veterinarioId;
+    }
 
     public String getDiagnostico() { return diagnostico; }
     public void setDiagnostico(String diagnostico) { this.diagnostico = diagnostico; }

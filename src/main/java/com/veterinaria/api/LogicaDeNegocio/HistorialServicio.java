@@ -5,9 +5,9 @@ import com.veterinaria.api.DTOs.HistorialDTO;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface HistorialService {
+public interface HistorialServicio {
     CompletableFuture<HistorialDTO> crearHistorial(HistorialDTO historialDTO);
     CompletableFuture<HistorialDTO> actualizarHistorial(Long id, HistorialDTO historialDTO);
-    CompletableFuture<List<HistorialDTO>> obtenerPorMascota(Long mascotaId);
+    CompletableFuture<List<HistorialDTO>> obtenerPorCita(Long citaId);
     CompletableFuture<HistorialDTO> anularHistorial(Long id, String corregidoPor);
 }

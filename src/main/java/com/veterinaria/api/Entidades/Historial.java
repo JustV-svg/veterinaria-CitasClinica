@@ -12,8 +12,13 @@ public class Historial {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "cita_id", nullable = false)
-    private Long citaId;
+    // Relación con Cita
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cita_id", nullable = false)
+    private Cita cita;
+
+    @Column(name = "veterinario_id", nullable = true) // lo hacemos opcional por ahora
+    private Long veterinarioId;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String diagnostico;
@@ -43,12 +48,20 @@ public class Historial {
         this.id = id;
     }
 
-    public Long getCitaId() {
-        return citaId;
+    public Cita getCita() {
+        return cita;
     }
 
-    public void setCitaId(Long citaId) {
-        this.citaId = citaId;
+    public void setCita(Cita cita) {
+        this.cita = cita;
+    }
+
+    public Long getVeterinarioId() {
+        return veterinarioId;
+    }
+
+    public void setVeterinarioId(Long veterinarioId) {
+        this.veterinarioId = veterinarioId;
     }
 
     public String getDiagnostico() {
