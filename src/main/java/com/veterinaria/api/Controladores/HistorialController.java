@@ -32,6 +32,12 @@ public class HistorialController {
         return historialService.obtenerPorCita(citaId);
     }
 
+    @GetMapping
+    public CompletableFuture<List<HistorialDTO>> obtenerTodos() {
+        return historialService.obtenerTodos();
+    }
+
+
     @PutMapping("/{id}/anular")
     public CompletableFuture<HistorialDTO> anularHistorial(@PathVariable Long id,
                                                            @RequestParam String corregidoPor) {

@@ -70,4 +70,15 @@ public class HistorialServiceImpl implements HistorialServicio {
         Historial actualizado = historialRepository.save(historial);
         return CompletableFuture.completedFuture(modelMapper.map(actualizado, HistorialDTO.class));
     }
+
+    @Async
+    public CompletableFuture<List<HistorialDTO>> obtenerTodos() {
+        List<HistorialDTO> lista = historialRepository.findAll()
+                .stream()
+                .map(historial -> modelMapper.map(historial, HistorialDTO.class))
+                .toList();
+
+        return CompletableFuture.completedFuture(lista);
+    }
+
 }
