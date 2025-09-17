@@ -10,4 +10,5 @@ public interface HistorialServicio {
     CompletableFuture<HistorialDTO> actualizarHistorial(Long id, HistorialDTO historialDTO);
     CompletableFuture<List<HistorialDTO>> obtenerPorCita(Long citaId);
     CompletableFuture<HistorialDTO> anularHistorial(Long id, String corregidoPor);
+    CompletableFuture<List<HistorialDTO>> obtenerTodos();
 }
